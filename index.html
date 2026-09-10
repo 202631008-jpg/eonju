@@ -1,0 +1,813 @@
+html_content = """<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 뭐 먹지? | 저녁 메뉴 추천 Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF5E36;
+            --primary-hover: #E04822;
+            --primary-light: #FFF0ED;
+            --secondary: #FFB800;
+            --bg-grad-start: #FFF9F5;
+            --bg-grad-end: #FFEFE6;
+            --text-dark: #222222;
+            --text-muted: #666666;
+            --card-bg: #FFFFFF;
+            --shadow-subtle: 0 10px 30px rgba(255, 94, 54, 0.08);
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-grad-start) 0%, var(--bg-grad-end) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Category Filter Pills */
+        .category-group {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .category-btn {
+            background: #F5F5F7;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .category-btn:hover {
+            background: #EAEAEA;
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 94, 54, 0.25);
+        }
+
+        /* Menu Result Box */
+        .result-card {
+            background: #FAFAFC;
+            border: 2px dashed #E2E4E9;
+            border-radius: var(--radius-md);
+            padding: 30px 20px;
+            margin-bottom: 24px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-card.active {
+            border: 2px solid var(--primary-light);
+            background: #FFFFFF;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .emoji-display {
+            font-size: 5.5rem;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            transition: transform 0.2s ease;
+            user-select: none;
+        }
+
+        .emoji-display.spin {
+            animation: slotBounce 0.15s infinite alternate ease-in-out;
+        }
+
+        .emoji-display.pop {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .food-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            word-break: keep-all;
+        }
+
+        .food-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: #F0F0F3;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .food-desc {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.5;
+            word-break: keep-all;
+            margin-bottom: 12px;
+            max-width: 320px;
+        }
+
+        .food-pairing {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #FFF8E7;
+            border: 1px solid #FFE6A3;
+            color: #B7791F;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        /* Action Buttons */
+        .btn-main {
+            width: 100%;
+            background: linear-gradient(135deg, #FF6B43 0%, #FF451A 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: var(--radius-md);
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 69, 26, 0.35);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(255, 69, 26, 0.4);
+            background: linear-gradient(135deg, #FF7650 0%, #FF4F26 100%);
+        }
+
+        .btn-main:active {
+            transform: translateY(1px);
+            box-shadow: 0 6px 15px rgba(255, 69, 26, 0.3);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sub-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .btn-sub {
+            flex: 1;
+            background: #F4F4F7;
+            border: 1px solid #E5E5EA;
+            color: #444;
+            padding: 11px 0;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-sub:hover {
+            background: #EBEBEF;
+            color: #111;
+        }
+
+        /* History Section */
+        .history-section {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #EEEEEE;
+            text-align: left;
+        }
+
+        .history-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #888888;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .history-chips::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            flex: 0 0 auto;
+            background: #F5F5F7;
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Toast Popup */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(34, 34, 34, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Animations */
+        @keyframes slotBounce {
+            0% { transform: scale(0.92) translateY(-4px); }
+            100% { transform: scale(1.08) translateY(4px); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal for All Foods */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1001;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-body {
+            background: white;
+            width: 100%;
+            max-width: 440px;
+            max-height: 80vh;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            overflow-y: auto;
+            text-align: left;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.open .modal-body {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .food-item-card {
+            background: #F8F9FA;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <span class="header-badge">🍽️ 결정장애 해결소</span>
+            <h1>오늘 저녁 뭐 먹지?</h1>
+            <p class="subtitle">고민은 이제 그만! 추천 버튼을 누르면<br>오늘 당신에게 딱 맞는 맛있는 메뉴가 나와요.</p>
+        </header>
+
+        <!-- 카테고리 필터 -->
+        <div class="category-group">
+            <button class="category-btn active" onclick="setCategory('all', this)">전체 🎲</button>
+            <button class="category-btn" onclick="setCategory('korean', this)">한식 🍲</button>
+            <button class="category-btn" onclick="setCategory('asian', this)">일식/중식 🍣</button>
+            <button class="category-btn" onclick="setCategory('western', this)">양식 🍕</button>
+            <button class="category-btn" onclick="setCategory('snack', this)">분식/야식 떡볶이 🍡</button>
+        </div>
+
+        <!-- 메뉴 결과 카드 -->
+        <div class="result-card" id="result-card">
+            <div class="emoji-display" id="emoji-display">🤔</div>
+            <div class="food-name" id="food-name">어떤 메뉴가 나올까요?</div>
+            <div class="food-tag" id="food-tag" style="display:none;">카테고리</div>
+            <div class="food-desc" id="food-desc">아래 '저녁메뉴 추천' 버튼을 살포시 눌러주세요!</div>
+            <div class="food-pairing" id="food-pairing" style="display:none;">
+                <span>💡 꿀조합:</span> <span id="pairing-text"></span>
+            </div>
+        </div>
+
+        <!-- 메인 버튼 -->
+        <button class="btn-main" id="recommend-btn" onclick="recommendMenu()">
+            <span>🎲</span>
+            <span>저녁메뉴 추천</span>
+        </button>
+
+        <!-- 서브 버튼 그룹 -->
+        <div class="sub-actions">
+            <button class="btn-sub" onclick="copyResult()">
+                <span>📋</span> 카톡/링크 공유
+            </button>
+            <button class="btn-sub" onclick="openModal()">
+                <span>📜</span> 메뉴 목록 전체보기
+            </button>
+        </div>
+
+        <!-- 최근 추천 히스토리 -->
+        <div class="history-section" id="history-section" style="display:none;">
+            <div class="history-title">
+                <span>최근 추천받은 메뉴</span>
+                <span style="font-weight:normal; font-size:0.75rem; cursor:pointer;" onclick="clearHistory()">기록 삭제</span>
+            </div>
+            <div class="history-chips" id="history-chips">
+                <!-- Chip items dynamically injected -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 전체 메뉴 모달 -->
+    <div class="modal-overlay" id="food-modal">
+        <div class="modal-body">
+            <div class="modal-header">
+                <h3>후보 저녁 메뉴 전체 보기 (총 <span id="total-count">0</span>개)</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="food-grid" id="food-grid"></div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div class="toast" id="toast">클립보드에 복사되었습니다!</div>
+
+    <script>
+        // 저녁 메뉴 데이터베이스
+        const menuList = [
+            // 한식
+            { name: "삼겹살", emoji: "🥓", category: "korean", categoryName: "한식", desc: "지글지글 노릇하게 구운 삼겹살에 쌈채소와 마늘 한 점!", pairing: "된장찌개 & 소주/음료" },
+            { name: "김치찌개", emoji: "🍲", category: "korean", categoryName: "한식", desc: "푹 익은 신김치와 돼지고기가 어우러진 깊고 칼칼한 국물!", pairing: "두툼한 계란말이 & 조미김" },
+            { name: "된장찌개", emoji: "🍲", category: "korean", categoryName: "한식", desc: "구수함과 감칠맛이 폭발하는 마음까지 따뜻해지는 집밥 대표!", pairing: "차돌박이 & 흰쌀밥" },
+            { name: "부대찌개", emoji: "🥘", category: "korean", categoryName: "한식", desc: "각종 햄과 소시지, 치즈와 라면사리가 만나 완벽해진 맛!", pairing: "라면사리 추가 & 슬라이스 치즈" },
+            { name: "제육볶음", emoji: "🥩", category: "korean", categoryName: "한식", desc: "매콤달콤 양념에 불향을 가득 입힌 밥도둑 최강자!", pairing: "신선한 상추쌈 & 깻잎" },
+            { name: "비빔밥", emoji: "🥗", category: "korean", categoryName: "한식", desc: "각종 신선한 나물과 고추장, 참기름의 고소한 하모니!", pairing: "계란후라이 반숙 & 시원한 콩나물국" },
+            { name: "닭갈비", emoji: "🍗", category: "korean", categoryName: "한식", desc: "매콤한 양념 닭고기와 고구마, 떡의 찰떡 조합!", pairing: "우동사리 & 눈꽃치즈 볶음밥" },
+            { name: "순두부찌개", emoji: "🍲", category: "korean", categoryName: "한식", desc: "몽글몽글 부드러운 순두부에 해물과 계란 톡!", pairing: "돌솥밥 & 구운 김" },
+            { name: "감자탕", emoji: "🍲", category: "korean", categoryName: "한식", desc: "푹 고아낸 등뼈살과 시원한 우거지의 진한 조화!", pairing: "라면사리 & 볶음밥 마무리" },
+            { name: "소불고기", emoji: "🥩", category: "korean", categoryName: "한식", desc: "달콤 짭조름한 양념에 야들야들한 소고기와 당면!", pairing: "당면 사리 & 흰쌀밥" },
+            { name: "칼국수", emoji: "🍜", category: "korean", categoryName: "한식", desc: "진하고 시원한 멸치/바지락 육수에 쫄깃한 면발!", pairing: "매콤한 겉절이 김치 & 왕만두" },
+            { name: "샤브샤브", emoji: "🍲", category: "korean", categoryName: "한식", desc: "신선한 야채와 thin 소고기를 따뜻한 육수에 퐁당!", pairing: "칼국수 면 & 야채죽" },
+
+            // 일식 / 중식
+            { name: "초밥", emoji: "🍣", category: "asian", categoryName: "일식", desc: "신선한 회와 정성스러운 밥의 깔끔하고 완벽한 만남!", pairing: "따뜻한 미소시루 & 튀김" },
+            { name: "돈까스", emoji: "🥩", category: "asian", categoryName: "일식", desc: "바삭바삭한 튀김옷 속 촉촉하고 두툼한 육즙!", pairing: "양배추 샐러드 & 미소된장국" },
+            { name: "라멘", emoji: "🍜", category: "asian", categoryName: "일식", desc: "진하게 우려낸 돈코츠 육수에 쫄깃한 생면과 차슈!", pairing: "차슈 추가 & 차조기 교자" },
+            { name: "짜장면", emoji: "🍜", category: "asian", categoryName: "중식", desc: "달콤 짭조름한 춘장 소스에 잘 비벼 먹는 국민 면요리!", pairing: "바삭한 탕수육 & 고춧가루 톡톡" },
+            { name: "짬뽕", emoji: "🍜", category: "asian", categoryName: "중식", desc: "해산물이 듬뿍 들어가 속이 뻥 뚫리는 얼큰한 국물!", pairing: "군만두 & 찹쌀탕수육" },
+            { name: "탕수육", emoji: "🥢", category: "asian", categoryName: "중식", desc: "바삭한 고기튀김에 새콤달콤한 소스의 행복!", pairing: "짜장면 또는 짬뽕 조합" },
+            { name: "마라탕", emoji: "🥘", category: "asian", categoryName: "중식", desc: "얼얼하고 매콤한 마라 향신료의 중독적인 매력!", pairing: "꿔바로우 & 빙홍차" },
+            { name: "회덮밥", emoji: "🥗", category: "asian", categoryName: "일식", desc: "싱싱한 횟감과 야채에 초고추장을 쓱쓱 비벼 한 입!", pairing: "따뜻한 장국" },
+
+            // 양식
+            { name: "피자", emoji: "🍕", category: "western", categoryName: "양식", desc: "치즈가 늘어나는 행복! 오늘 하루 스트레스를 날릴 메뉴!", pairing: "갈릭디핑소스 & 피클 & 맥주" },
+            { name: "수제버거", emoji: "🍔", category: "western", categoryName: "양식", desc: "육즙 가득 두툼한 패티와 신선한 야채가 차곡차곡!", pairing: "감자튀김 & 케첩" },
+            { name: "파스타", emoji: "🍝", category: "western", categoryName: "양식", desc: "부드러운 크림 또는 알싸한 오일, 달콤한 토마토 소스!", pairing: "마늘빵 & 피클" },
+            { name: "스테이크", emoji: "🥩", category: "western", categoryName: "양식", desc: "육즙을 꼭 품은 완벽한 굽기! 특별한 기분을 내고 싶을 때!", pairing: "구운 채소 & 와인" },
+            { name: "치킨", emoji: "🍗", category: "western", categoryName: "양식", desc: "겉은 바삭, 속은 촉촉! 저녁 메뉴 최고의 치트키!", pairing: "치킨무 & 시원한 맥주/콜라" },
+            { name: "리소토", emoji: "🍛", category: "western", categoryName: "양식", desc: "버섯과 크림, 버터의 풍미가 쌀알 하나하나에 입혀진 요리!", pairing: "상큼한 수제 피클" },
+            { name: "타코", emoji: "🌮", category: "western", categoryName: "양식", desc: "매콤한 고기와 신선한 과카몰리를 또띠아에 싸서 냠!", pairing: "나초 칩 & 멕시칸 맥주" },
+
+            // 분식 / 야식
+            { name: "떡볶이", emoji: "🍡", category: "snack", categoryName: "분식", desc: "매콤달콤 양념에 쫀득한 떡과 어묵의 영원한 베스트셀러!", pairing: "모듬튀김 & 찰순대 & 쿨피스" },
+            { name: "족발", emoji: "🍖", category: "snack", categoryName: "야식", desc: "쫀득쫀득 콜라겐 가득! 단짠 양념이 배어있는 야식의 왕!", pairing: "쟁반막국수 & 보쌈김치" },
+            { name: "보쌈", emoji: "🥩", category: "snack", categoryName: "야식", desc: "야들야들하게 삶아낸 돼지고기 수육에 보쌈김치 한 점!", pairing: "무말랭이 & 알배기배추" },
+            { name: "곱창", emoji: "🫕", category: "snack", categoryName: "야식", desc: "고소한 기름기와 쫄깃한 식감! 씹을수록 감칠맛 폭발!", pairing: "부추무침 & 날치알 볶음밥" },
+            { name: "닭발", emoji: "🐾", category: "snack", categoryName: "야식", desc: "화끈하게 매운 양념에 쫀득 쫄깃 스트레스 해소 1등!", pairing: "주먹밥 & 계란찜" }
+        ];
+
+        let currentCategory = 'all';
+        let historyList = [];
+        let isSpinning = false;
+        let currentSelectedMenu = null;
+
+        // 카테고리 설정
+        function setCategory(cat, btn) {
+            if (isSpinning) return;
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // 현재 카테고리 필터링된 메뉴
+        function getFilteredMenuList() {
+            if (currentCategory === 'all') return menuList;
+            return menuList.filter(m => m.category === currentCategory);
+        }
+
+        // 저녁 메뉴 추천 실행
+        function recommendMenu() {
+            if (isSpinning) return;
+
+            const pool = getFilteredMenuList();
+            if (pool.length === 0) return;
+
+            isSpinning = true;
+            const btn = document.getElementById('recommend-btn');
+            const card = document.getElementById('result-card');
+            const emojiEl = document.getElementById('emoji-display');
+            const nameEl = document.getElementById('food-name');
+            const tagEl = document.getElementById('food-tag');
+            const descEl = document.getElementById('food-desc');
+            const pairingEl = document.getElementById('food-pairing');
+
+            btn.disabled = true;
+            card.classList.remove('active');
+            emojiEl.classList.remove('pop');
+            emojiEl.classList.add('spin');
+            pairingEl.style.display = 'none';
+            tagEl.style.display = 'none';
+
+            let counter = 0;
+            const totalSteps = 20;
+            const intervalTime = 60; // ms
+
+            const timer = setInterval(() => {
+                const randomTemp = pool[Math.floor(Math.random() * pool.length)];
+                emojiEl.textContent = randomTemp.emoji;
+                nameEl.textContent = randomTemp.name;
+                descEl.textContent = "메뉴를 고르고 있어요... 🎲";
+                counter++;
+
+                if (counter >= totalSteps) {
+                    clearInterval(timer);
+                    
+                    // 최종 선택
+                    const finalMenu = pool[Math.floor(Math.random() * pool.length)];
+                    currentSelectedMenu = finalMenu;
+
+                    emojiEl.classList.remove('spin');
+                    emojiEl.textContent = finalMenu.emoji;
+                    emojiEl.classList.add('pop');
+
+                    nameEl.textContent = finalMenu.name;
+                    tagEl.textContent = finalMenu.categoryName;
+                    tagEl.style.display = 'inline-block';
+                    descEl.textContent = finalMenu.desc;
+
+                    document.getElementById('pairing-text').textContent = finalMenu.pairing;
+                    pairingEl.style.display = 'inline-flex';
+
+                    card.classList.add('active');
+                    btn.disabled = false;
+                    isSpinning = false;
+
+                    // 폭죽 효과
+                    launchConfetti();
+
+                    // 히스토리 추가
+                    addHistory(finalMenu);
+                }
+            }, intervalTime);
+        }
+
+        // 히스토리 추가
+        function addHistory(menu) {
+            // 중복제거 후 맨 앞 추가
+            historyList = historyList.filter(h => h.name !== menu.name);
+            historyList.unshift(menu);
+            if (historyList.length > 5) historyList.pop();
+
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const sec = document.getElementById('history-section');
+            const chips = document.getElementById('history-chips');
+
+            if (historyList.length === 0) {
+                sec.style.display = 'none';
+                return;
+            }
+
+            sec.style.display = 'block';
+            chips.innerHTML = historyList.map(m => `
+                <div class="chip">
+                    <span>${m.emoji}</span>
+                    <span>${m.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            historyList = [];
+            renderHistory();
+        }
+
+        // 결과 복사 기능
+        function copyResult() {
+            if (!currentSelectedMenu) {
+                showToast("먼저 메뉴를 추천받아보세요!");
+                return;
+            }
+
+            const shareText = `[오늘 저녁 메뉴 추천]\n오늘 저녁은 '${currentSelectedMenu.emoji} ${currentSelectedMenu.name}' 어때요?\n\n💡 꿀조합: ${currentSelectedMenu.pairing}\n추천받기: ${window.location.href}`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showToast("결과가 클립보드에 복사되었습니다! 📋");
+                }).catch(() => {
+                    fallbackCopy(shareText);
+                });
+            } else {
+                fallbackCopy(shareText);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast("결과가 클립보드에 복사되었습니다! 📋");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // 모달 관련
+        function openModal() {
+            const modal = document.getElementById('food-modal');
+            const grid = document.getElementById('food-grid');
+            document.getElementById('total-count').textContent = menuList.length;
+
+            grid.innerHTML = menuList.map(m => `
+                <div class="food-item-card">
+                    <span style="font-size:1.4rem;">${m.emoji}</span>
+                    <div>
+                        <div style="font-weight:700;">${m.name}</div>
+                        <div style="font-size:0.75rem; color:#888;">${m.categoryName}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            modal.classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('food-modal').classList.remove('open');
+        }
+
+        // 간단한 Confetti (폭죽) 애니메이션 구현
+        function launchConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#FF5E36', '#FFB800', '#FF8264', '#4CD964', '#5AC8FA', '#007AFF'];
+
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2 + 50,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.8) * 14,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    vRot: (Math.random() - 0.5) * 10,
+                    opacity: 1
+                });
+            }
+
+            let animationFrame;
+            function update() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.4; // 중력 효과
+                    p.rotation += p.vRot;
+                    p.opacity -= 0.018;
+
+                    if (p.opacity > 0) {
+                        alive = true;
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate((p.rotation * Math.PI) / 180);
+                        ctx.globalAlpha = Math.max(0, p.opacity);
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        ctx.restore();
+                    }
+                });
+
+                if (alive) {
+                    animationFrame = requestAnimationFrame(update);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            cancelAnimationFrame(animationFrame);
+            update();
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('food-modal');
+            if (e.target === modal) closeModal();
+        });
+    </script>
+</body>
+</html>
+"""
+
+filename = "dinner_recommendation.html"
+with open(filename, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"File created successfully: {filename}")

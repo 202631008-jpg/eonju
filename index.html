@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚨 감옥 탈출 (PRISON BREAK)</title>
+    <title>🏥 정신병원 탈출 (PSYCHO ESCAPE) - HARDCORE</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,293 +11,323 @@
         }
 
         body {
-            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            font-family: 'Consolas', 'Monaco', 'Courier New', sans-serif;
+            background-color: #050508;
+            color: #e2e8f0;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 붉은 섬광 화면 효과 */
+        .glitch-bg {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(220, 38, 38, 0.05);
+            pointer-events: none;
+            z-index: 1;
         }
 
         .game-card {
-            background: #1e293b;
-            width: 92%;
-            max-width: 480px;
+            background: #0f172a;
+            width: 94%;
+            max-width: 500px;
             padding: 24px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(225, 29, 72, 0.2);
+            border: 1px solid #991b1b;
             text-align: center;
             position: relative;
+            z-index: 2;
         }
 
         h1 {
             margin: 0 0 5px 0;
-            color: #f59e0b;
+            color: #ef4444;
             font-size: 1.6rem;
-            letter-spacing: -0.5px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+
+        .diff-tag {
+            color: #dc2626;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
         }
 
         .stage-indicator {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin: 15px 0 20px 0;
+            gap: 6px;
+            margin-bottom: 20px;
         }
 
         .badge {
             font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 12px;
-            background: #334155;
-            color: #94a3b8;
-            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #1e293b;
+            color: #64748b;
+            border: 1px solid #334155;
         }
 
         .badge.active {
-            background: #f59e0b;
-            color: #0f172a;
+            background: #991b1b;
+            color: #ffffff;
+            border-color: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
         }
 
-        /* 게임 스테이지 공통 */
+        /* 공통 스테이지 박스 */
         .stage-box {
-            background: #0f172a;
-            border-radius: 15px;
+            background: #020617;
+            border-radius: 8px;
             padding: 20px;
-            min-height: 240px;
+            min-height: 250px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            border: 2px solid #334155;
+            border: 1px solid #1e293b;
             position: relative;
         }
 
-        /* 1단계: 자물쇠 따기 */
-        .lock-container {
+        /* 1단계 스타일 */
+        .code-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 6px;
+            color: #f87171;
+            margin: 20px 0;
+            min-height: 50px;
+            text-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+        }
+
+        .input-box {
+            width: 80%;
+            padding: 10px;
+            font-size: 1.3rem;
+            text-align: center;
+            background: #0f172a;
+            border: 1px solid #ef4444;
+            color: #fff;
+            border-radius: 6px;
+            outline: none;
+            letter-spacing: 4px;
+        }
+
+        /* 2단계 스타일 */
+        .sanity-bar-container {
             width: 100%;
-            height: 30px;
+            height: 10px;
             background: #1e293b;
-            border-radius: 15px;
-            position: relative;
-            margin: 40px 0 20px 0;
+            border-radius: 5px;
             overflow: hidden;
-            border: 1px solid #475569;
+            margin-bottom: 10px;
         }
 
-        .target-zone {
-            position: absolute;
+        .sanity-bar-fill {
             height: 100%;
-            background: rgba(34, 197, 94, 0.4);
-            border-left: 2px solid #22c55e;
-            border-right: 2px solid #22c55e;
+            width: 100%;
+            background: #22c55e;
+            transition: width 0.1s linear, background-color 0.2s;
         }
 
-        .pin {
-            position: absolute;
-            width: 8px;
-            height: 100%;
-            background: #ef4444;
-            box-shadow: 0 0 10px #ef4444;
-            top: 0;
-        }
-
-        /* 2단계: 순찰 피하기 */
-        .guard-status {
-            font-size: 3.5rem;
-            margin-top: 10px;
+        .doctor-status {
+            font-size: 3.8rem;
+            margin: 10px 0;
         }
 
         .track-bg {
             width: 100%;
             height: 12px;
-            background: #334155;
+            background: #1e293b;
             border-radius: 6px;
             overflow: hidden;
-            margin-top: auto;
         }
 
         .track-fill {
             height: 100%;
             width: 0%;
-            background: #3b82f6;
-            transition: width 0.1s linear;
+            background: #ef4444;
         }
 
-        .track-player {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.8rem;
-            margin-top: 5px;
-            position: relative;
-        }
-
-        .runner {
-            position: absolute;
-            left: 0%;
-            transition: left 0.1s linear;
-        }
-
-        /* 3단계: 담장 넘기 */
-        .wall-container {
-            width: 40px;
-            height: 140px;
-            background: #334155;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: flex-end;
-            border: 2px solid #475569;
-        }
-
-        .wall-fill {
-            width: 100%;
-            height: 0%;
-            background: linear-gradient(to top, #3b82f6, #60a5fa);
-            transition: height 0.05s ease-out;
-        }
-
-        .timer-display {
-            font-size: 1.2rem;
+        /* 3단계 스타일 */
+        .qte-key {
+            font-size: 4.5rem;
             font-weight: bold;
-            color: #ef4444;
+            color: #facc15;
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.7);
+            margin: 10px 0;
         }
 
-        /* 컨트롤 버튼 */
+        .time-gauge {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .time-gauge-fill {
+            height: 100%;
+            width: 100%;
+            background: #eab308;
+        }
+
+        /* 버튼 */
         .action-btn {
             width: 100%;
-            margin-top: 20px;
-            padding: 16px;
+            margin-top: 18px;
+            padding: 15px;
             font-size: 1.1rem;
             font-weight: bold;
             color: #ffffff;
-            background-color: #f59e0b;
-            border: none;
-            border-radius: 12px;
+            background-color: #7f1d1d;
+            border: 1px solid #ef4444;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-            transition: background 0.1s, transform 0.05s;
+            box-shadow: 0 0 10px rgba(127, 29, 29, 0.5);
+            transition: all 0.1s;
         }
 
         .action-btn:active {
-            transform: scale(0.97);
-            background-color: #d97706;
+            background-color: #991b1b;
+            transform: scale(0.98);
         }
 
-        /* 결과 모달 */
+        /* 결과 창 */
         .overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.95);
-            border-radius: 20px;
+            background: rgba(5, 5, 8, 0.96);
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 25px;
             z-index: 10;
         }
 
         .overlay h2 {
             font-size: 2rem;
             margin-bottom: 10px;
+            color: #dc2626;
         }
 
         .overlay p {
             color: #94a3b8;
             margin-bottom: 25px;
+            line-height: 1.4;
         }
 
         .restart-btn {
-            padding: 12px 28px;
+            padding: 12px 30px;
             font-size: 1rem;
             font-weight: bold;
-            background: #10b981;
+            background: #ef4444;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 6px;
             cursor: pointer;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
         }
 
         .hidden { display: none !important; }
-        .text-sub { color: #94a3b8; font-size: 0.85rem; }
+        .text-sub { color: #64748b; font-size: 0.85rem; }
+        .timer-text { color: #f87171; font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <div class="glitch-bg"></div>
+
     <div class="game-card">
-        <h1>🚨 감옥 탈출 (PRISON BREAK)</h1>
-        
-        <!-- 단계 표시기 -->
+        <h1>🏥 PSYCHO ESCAPE</h1>
+        <div class="diff-tag">⚠️ 난이도: EXTREME HARDCORE</div>
+
+        <!-- 단계 헤더 -->
         <div class="stage-indicator">
-            <span id="badge1" class="badge active">1. 자물쇠 따기</span>
-            <span id="badge2" class="badge">2. 순찰 피하기</span>
-            <span id="badge3" class="badge">3. 담장 넘기</span>
+            <span id="badge1" class="badge active">1. 진정제실 암호</span>
+            <span id="badge2" class="badge">2. 어두운 복도</span>
+            <span id="badge3" class="badge">3. 비상 셔터 QTE</span>
         </div>
 
-        <!-- 1단계 화면 -->
+        <!-- 1단계: 메모리 암호 -->
         <div id="stage1" class="stage-box">
             <div>
-                <h3>🔓 자물쇠 핀을 맞추세요!</h3>
-                <p class="text-sub">핀이 초록색 영역에 올 때 버튼을 누르세요.</p>
+                <h3>👁️ 0.7초간 스치는 암호를 기억하세요</h3>
+                <p class="text-sub">제한시간 3.5초 | <span class="timer-text" id="st1Timer">3.5s</span></p>
             </div>
-            <div class="lock-container">
-                <div id="targetZone" class="target-zone"></div>
-                <div id="pin" class="pin"></div>
-            </div>
-            <div id="lockCounter" style="font-size: 1.2rem;">성공: 0 / 3</div>
+            <div id="codeDisplay" class="code-display">------</div>
+            <input type="text" id="st1Input" class="input-box" placeholder="6자리 입력" maxlength="6" autocomplete="off" disabled>
+            <div id="st1Count" style="margin-top: 10px; color: #a1a1aa;">성공 횟수: 0 / 2</div>
         </div>
 
-        <!-- 2단계 화면 -->
+        <!-- 2단계: 스텔스 & 정신력 -->
         <div id="stage2" class="stage-box hidden">
-            <div>
-                <h3>🔦 교도관의 눈을 피하세요!</h3>
-                <p id="st2Desc" class="text-sub">교도관이 딴짓할 때만 이동하세요.</p>
+            <div style="width: 100%;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+                    <span>정신력 (SANITY)</span>
+                    <span id="sanityText">100%</span>
+                </div>
+                <div class="sanity-bar-container">
+                    <div id="sanityFill" class="sanity-bar-fill"></div>
+                </div>
+                <p id="st2Desc" class="text-sub" style="margin: 0;">의사가 딴짓할 때만 전진하세요!</p>
             </div>
-            <div id="guardEmoji" class="guard-status">😴</div>
+
+            <div id="docEmoji" class="doctor-status">💉</div>
+
             <div style="width: 100%;">
                 <div class="track-bg"><div id="st2Progress" class="track-fill"></div></div>
-                <div class="track-player">
-                    <span id="st2Runner" class="runner">🏃‍♂️</span>
-                    <span style="margin-left: auto;">🚪</span>
+                <div style="display: flex; justify-content: space-between; font-size: 1.5rem; margin-top: 5px;">
+                    <span id="st2Runner">🏃‍♂️</span>
+                    <span>🚪</span>
                 </div>
             </div>
         </div>
 
-        <!-- 3단계 화면 -->
+        <!-- 3단계: QTE 극강 연타 -->
         <div id="stage3" class="stage-box hidden">
             <div>
-                <h3>🧱 탐조등을 피해 담장을 넘으세요!</h3>
-                <p class="text-sub">제한시간 안에 버튼을 **미친듯이 연타**하세요!</p>
+                <h3>⚡ 화면의 알파벳을 즉시 누르세요!</h3>
+                <p class="text-sub">제한시간: <span class="timer-text">0.50초</span> (10회 연속)</p>
             </div>
-            <div class="timer-display" id="st3Timer">⏱️ 10.0초</div>
-            <div class="wall-container">
-                <div id="st3Wall" class="wall-fill"></div>
+            
+            <div id="qteKey" class="qte-key">A</div>
+
+            <div style="width: 100%;">
+                <div class="time-gauge">
+                    <div id="qteTimeGauge" class="time-gauge-fill"></div>
+                </div>
+                <div id="st3Count" style="margin-top: 10px; color: #a1a1aa;">남은 횟수: 10 / 10</div>
             </div>
-            <div id="st3Percent">0%</div>
         </div>
 
-        <!-- 조작 버튼 -->
-        <button id="mainBtn" class="action-btn">액션 버튼 (스페이스바 가능)</button>
+        <!-- 메인 조작 버튼 -->
+        <button id="mainBtn" class="action-btn">게임 시작 / 액션</button>
 
         <!-- 결과 모달 -->
         <div id="resultModal" class="overlay hidden">
-            <h2 id="resTitle">🚨 탈출 실패!</h2>
-            <p id="resDesc">교도관에게 발각되었습니다.</p>
-            <button class="restart-btn" onclick="initGame()">처음부터 다시 시도</button>
+            <h2 id="resTitle">💀 영원한 감금</h2>
+            <p id="resDesc">정신병원을 탈출하지 못했습니다.</p>
+            <button class="restart-btn" onclick="initGame()">다시 도전 (RETRY)</button>
         </div>
     </div>
 
     <script>
-        // 현재 게임 상태
+        // 게임 상태
         let currentStage = 1;
         let isGameOver = false;
 
-        // UI 요소
+        // UI
         const badge1 = document.getElementById('badge1');
         const badge2 = document.getElementById('badge2');
         const badge3 = document.getElementById('badge3');
@@ -310,27 +340,28 @@
         const resDesc = document.getElementById('resDesc');
 
         // --- 1단계 변수 ---
-        let pinPos = 0;
-        let pinSpeed = 1.8;
-        let pinDir = 1;
-        let targetMin = 40;
-        let targetMax = 65;
-        let lockSuccessCount = 0;
-        let stage1AnimFrame = null;
+        let st1TargetCode = "";
+        let st1SuccessCount = 0;
+        let st1Timer = null;
+        let st1TimeLeft = 3.5;
 
         // --- 2단계 변수 ---
+        let sanity = 100;
+        let sanityInterval = null;
         let st2Pos = 0;
-        let st2GuardState = 'SAFE'; // SAFE, WARNING, DANGER
-        let st2MoveInterval = null;
+        let st2State = 'SAFE'; // SAFE, WARNING, DANGER
         let st2GuardTimer = null;
         let isSt2Moving = false;
+        let st2MoveInterval = null;
 
         // --- 3단계 변수 ---
-        let st3Climb = 0;
-        let st3TimeLeft = 10.0;
-        let st3TimerInterval = null;
+        const qteKeys = ['A', 'S', 'D', 'F', 'J', 'K', 'L', 'W', 'E', 'R'];
+        let currentQTEKey = '';
+        let qteStep = 0;
+        let qteTimeLeft = 100; // %
+        let qteInterval = null;
 
-        // 전체 게임 초기화
+        // 게임 시작 및 초기화
         function initGame() {
             currentStage = 1;
             isGameOver = false;
@@ -344,55 +375,81 @@
             stage2.classList.add('hidden');
             stage3.classList.add('hidden');
 
-            initStage1();
+            st1SuccessCount = 0;
+            document.getElementById('st1Count').innerText = `성공 횟수: 0 / 2`;
+            mainBtn.innerText = "암호 출력 시작!";
+            mainBtn.onclick = startStage1Round;
         }
 
         // ==========================================
-        // 🔓 1단계: 자물쇠 따기 로직
+        // 🧩 1단계: 메모리 암호 해독 (극악)
         // ==========================================
-        function initStage1() {
-            lockSuccessCount = 0;
-            document.getElementById('lockCounter').innerText = `성공: ${lockSuccessCount} / 3`;
-            mainBtn.innerText = '핀 맞추기! (클릭/스페이스바)';
-            randomizeTarget();
-            animatePin();
+        function startStage1Round() {
+            if (isGameOver) return;
+
+            // 6자리 난수 생성
+            st1TargetCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const display = document.getElementById('codeDisplay');
+            const input = document.getElementById('st1Input');
+
+            input.value = "";
+            input.disabled = true;
+            mainBtn.disabled = true;
+            mainBtn.innerText = "암호 기억하는 중...";
+
+            // 0.7초 동안만 보여줌
+            display.innerText = st1TargetCode;
+            
+            setTimeout(() => {
+                display.innerText = "******";
+                input.disabled = false;
+                input.focus();
+                mainBtn.disabled = false;
+                mainBtn.innerText = "암호 제출 (ENTER)";
+                mainBtn.onclick = checkStage1Answer;
+
+                // 3.5초 타이머 시작
+                st1TimeLeft = 3.5;
+                clearInterval(st1Timer);
+                st1Timer = setInterval(() => {
+                    st1TimeLeft -= 0.1;
+                    document.getElementById('st1Timer').innerText = `${Math.max(0, st1TimeLeft).toFixed(1)}s`;
+                    if (st1TimeLeft <= 0) {
+                        clearInterval(st1Timer);
+                        gameOver("🚨 시간 초과!", "3.5초 안에 암호를 입력하지 못해 경보가 울렸습니다.");
+                    }
+                }, 100);
+            }, 700);
         }
 
-        function randomizeTarget() {
-            targetMin = Math.floor(Math.random() * 50) + 20; // 20 ~ 70
-            targetMax = targetMin + 20; // 폭 20%
-            const targetZone = document.getElementById('targetZone');
-            targetZone.style.left = targetMin + '%';
-            targetZone.style.width = (targetMax - targetMin) + '%';
-        }
+        function checkStage1Answer() {
+            if (isGameOver) return;
+            clearInterval(st1Timer);
 
-        function animatePin() {
-            if (currentStage !== 1 || isGameOver) return;
-            pinPos += pinSpeed * pinDir;
-            if (pinPos >= 96) pinDir = -1;
-            if (pinPos <= 0) pinDir = 1;
+            const inputVal = document.getElementById('st1Input').value.trim();
+            if (inputVal === st1TargetCode) {
+                st1SuccessCount++;
+                document.getElementById('st1Count').innerText = `성공 횟수: ${st1SuccessCount} / 2`;
 
-            document.getElementById('pin').style.left = pinPos + '%';
-            stage1AnimFrame = requestAnimationFrame(animatePin);
-        }
-
-        function handleStage1Action() {
-            if (pinPos >= targetMin && pinPos <= targetMax) {
-                lockSuccessCount++;
-                document.getElementById('lockCounter').innerText = `성공: ${lockSuccessCount} / 3`;
-                if (lockSuccessCount >= 3) {
-                    cancelAnimationFrame(stage1AnimFrame);
+                if (st1SuccessCount >= 2) {
                     startStage2();
                 } else {
-                    randomizeTarget();
+                    alert("1차 암호 해독 성공! 다음 암호 준비...");
+                    startStage1Round();
                 }
             } else {
-                gameOver("🚨 감옥 자물쇠 해제 실패!", "자물쇠를 억지로 따려다 경보음이 울렸습니다.");
+                gameOver("🚨 암호 오류!", "잘못된 암호를 입력하여 강한 전기 충격을 받았습니다.");
             }
         }
 
+        // 엔터키 지원
+        document.getElementById('st1Input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter' && currentStage === 1) checkStage1Answer();
+        });
+
+
         // ==========================================
-        // 🔦 2단계: 순찰 피하기 로직
+        // 👁️ 2단계: 어두운 복도 (스텔스 & 정신력 깎임)
         // ==========================================
         function startStage2() {
             currentStage = 2;
@@ -401,59 +458,82 @@
             stage1.classList.add('hidden');
             stage2.classList.remove('hidden');
 
+            sanity = 100;
             st2Pos = 0;
-            st2GuardState = 'SAFE';
+            st2State = 'SAFE';
             isSt2Moving = false;
-            document.getElementById('st2Progress').style.width = '0%';
-            document.getElementById('st2Runner').style.left = '0%';
-            mainBtn.innerText = '꾹 눌러서 살금살금 이동!';
 
-            updateGuardUI();
-            scheduleGuardState();
+            document.getElementById('st2Progress').style.width = '0%';
+            mainBtn.innerText = "꾹 눌러서 이동 (스페이스바 가능)";
+            mainBtn.onclick = null; // 마우스 이벤트로 변경
+
+            updateDocUI();
+            scheduleDocState();
+
+            // 정신력 지속 감소 타이머 (초당 6% 감소)
+            clearInterval(sanityInterval);
+            sanityInterval = setInterval(() => {
+                if (isGameOver || currentStage !== 2) return;
+                sanity -= 0.6;
+                const sanityFill = document.getElementById('sanityFill');
+                const sanityText = document.getElementById('sanityText');
+
+                sanityFill.style.width = Math.max(0, sanity) + '%';
+                sanityText.innerText = Math.max(0, Math.floor(sanity)) + '%';
+
+                if (sanity <= 30) sanityFill.style.backgroundColor = '#ef4444';
+                else if (sanity <= 60) sanityFill.style.backgroundColor = '#f59e0b';
+                else sanityFill.style.backgroundColor = '#22c55e';
+
+                if (sanity <= 0) {
+                    gameOver("🧠 정신력 붕괴!", "환각과 공포를 견디지 못하고 이성을 잃었습니다.");
+                }
+            }, 100);
         }
 
-        function scheduleGuardState() {
+        function scheduleDocState() {
             if (currentStage !== 2 || isGameOver) return;
 
             let time = 0;
-            if (st2GuardState === 'SAFE') {
-                time = Math.random() * 2000 + 1500;
-                st2GuardTimer = setTimeout(() => { setGuardState('WARNING'); }, time);
-            } else if (st2GuardState === 'WARNING') {
-                time = 700;
-                st2GuardTimer = setTimeout(() => { setGuardState('DANGER'); }, time);
-            } else if (st2GuardState === 'DANGER') {
-                time = Math.random() * 1500 + 1200;
-                st2GuardTimer = setTimeout(() => { setGuardState('SAFE'); }, time);
+            if (st2State === 'SAFE') {
+                time = Math.random() * 1200 + 1000; // 1 ~ 2.2초
+                st2GuardTimer = setTimeout(() => { setDocState('WARNING'); }, time);
+            } else if (st2State === 'WARNING') {
+                time = 350; // 경고 시간이 단 0.35초!
+                st2GuardTimer = setTimeout(() => { setDocState('DANGER'); }, time);
+            } else if (st2State === 'DANGER') {
+                time = Math.random() * 1000 + 1000; // 1 ~ 2초
+                st2GuardTimer = setTimeout(() => { setDocState('SAFE'); }, time);
             }
         }
 
-        function setGuardState(state) {
+        function setDocState(state) {
             if (currentStage !== 2 || isGameOver) return;
-            st2GuardState = state;
-            updateGuardUI();
+            st2State = state;
+            updateDocUI();
 
-            if (st2GuardState === 'DANGER' && isSt2Moving) {
-                gameOver("🚨 교도관에게 들켰습니다!", "손전등 불빛에 포착되어 독방에 갇혔습니다.");
+            if (st2State === 'DANGER' && isSt2Moving) {
+                gameOver("💉 수색 중 포획!", "의사가 뒤돌아볼 때 움직여 진정제 주사를 맞았습니다.");
                 return;
             }
-            scheduleGuardState();
+            scheduleDocState();
         }
 
-        function updateGuardUI() {
-            const emoji = document.getElementById('guardEmoji');
+        function updateDocUI() {
+            const emoji = document.getElementById('docEmoji');
             const desc = document.getElementById('st2Desc');
-            if (st2GuardState === 'SAFE') {
-                emoji.innerText = '😴';
-                desc.innerText = '교도관이 조는 중... (이동 가능)';
+
+            if (st2State === 'SAFE') {
+                emoji.innerText = '💉';
+                desc.innerText = '의사가 차트를 적는 중... (이동 가능)';
                 desc.style.color = '#22c55e';
-            } else if (st2GuardState === 'WARNING') {
-                emoji.innerText = '❓';
-                desc.innerText = '교도관: "음? 무슨 소리지?" (멈출 준비!)';
+            } else if (st2State === 'WARNING') {
+                emoji.innerText = '⚠️';
+                desc.innerText = '의사: "누가 움직였나...?" (0.35초 후 돌아봄!)';
                 desc.style.color = '#f59e0b';
-            } else if (st2GuardState === 'DANGER') {
-                emoji.innerText = '🔦';
-                desc.innerText = '교도관: 손전등 수색 중! (움직이지 마세요!)';
+            } else if (st2State === 'DANGER') {
+                emoji.innerText = '👁️';
+                desc.innerText = '의사가 뒤돌아봤습니다! (움직이지 마세요!)';
                 desc.style.color = '#ef4444';
             }
         }
@@ -464,19 +544,19 @@
 
             st2MoveInterval = setInterval(() => {
                 if (!isSt2Moving || isGameOver) return;
-                if (st2GuardState === 'DANGER') {
-                    gameOver("🚨 교도관에게 들켰습니다!", "손전등 불빛에 포착되어 독방에 갇혔습니다.");
+                if (st2State === 'DANGER') {
+                    gameOver("💉 수색 중 포획!", "의사가 뒤돌아볼 때 움직여 진정제 주사를 맞았습니다.");
                     return;
                 }
 
-                st2Pos += 1.2;
+                st2Pos += 1.1;
                 if (st2Pos > 88) st2Pos = 88;
 
                 document.getElementById('st2Progress').style.width = (st2Pos / 88 * 100) + '%';
-                document.getElementById('st2Runner').style.left = st2Pos + '%';
 
                 if (st2Pos >= 88) {
                     stopSt2Move();
+                    clearInterval(sanityInterval);
                     clearTimeout(st2GuardTimer);
                     startStage3();
                 }
@@ -488,8 +568,14 @@
             clearInterval(st2MoveInterval);
         }
 
+        // 2단계 조작 이벤트
+        mainBtn.addEventListener('mousedown', () => { if (currentStage === 2) startSt2Move(); });
+        mainBtn.addEventListener('mouseup', () => { if (currentStage === 2) stopSt2Move(); });
+        mainBtn.addEventListener('mouseleave', () => { if (currentStage === 2) stopSt2Move(); });
+
+
         // ==========================================
-        // 🧱 3단계: 담장 넘기 로직
+        // ⚡ 3단계: 비상 셔터 QTE (0.5초 한계 속도)
         // ==========================================
         function startStage3() {
             currentStage = 3;
@@ -498,51 +584,82 @@
             stage2.classList.add('hidden');
             stage3.classList.remove('hidden');
 
-            st3Climb = 0;
-            st3TimeLeft = 10.0;
-            mainBtn.innerText = '⚡ 연타하여 담장 넘기! (광클!)';
+            qteStep = 0;
+            mainBtn.innerText = "키보드로 화면의 알파벳을 누르세요!";
+            mainBtn.disabled = true;
 
-            document.getElementById('st3Wall').style.height = '0%';
-            document.getElementById('st3Percent').innerText = '0%';
-            document.getElementById('st3Timer').innerText = `⏱️ ${st3TimeLeft.toFixed(1)}초`;
-
-            st3TimerInterval = setInterval(() => {
-                st3TimeLeft -= 0.1;
-                if (st3TimeLeft <= 0) {
-                    st3TimeLeft = 0;
-                    document.getElementById('st3Timer').innerText = `⏱️ 0.0초`;
-                    clearInterval(st3TimerInterval);
-                    gameOver("🚨 탐조등에 적발되었습니다!", "제한시간 내에 담장을 넘지 못했습니다.");
-                } else {
-                    document.getElementById('st3Timer').innerText = `⏱️ ${st3TimeLeft.toFixed(1)}초`;
-                }
-            }, 100);
+            nextQTE();
         }
 
-        function handleStage3Action() {
-            if (currentStage !== 3 || isGameOver) return;
+        function nextQTE() {
+            if (isGameOver) return;
 
-            st3Climb += 4.5;
-            if (st3Climb > 100) st3Climb = 100;
-
-            document.getElementById('st3Wall').style.height = st3Climb + '%';
-            document.getElementById('st3Percent').innerText = Math.floor(st3Climb) + '%';
-
-            if (st3Climb >= 100) {
-                clearInterval(st3TimerInterval);
+            if (qteStep >= 10) {
                 gameWin();
+                return;
             }
+
+            document.getElementById('st3Count').innerText = `남은 횟수: ${10 - qteStep} / 10`;
+            
+            // Random Key 선택
+            currentQTEKey = qteKeys[Math.floor(Math.random() * qteKeys.length)];
+            document.getElementById('qteKey').innerText = currentQTEKey;
+
+            // 0.50초 타이머
+            qteTimeLeft = 100;
+            clearInterval(qteInterval);
+
+            qteInterval = setInterval(() => {
+                qteTimeLeft -= 5; // 0.5초 동안 100 -> 0 (20회 감쇠, 25ms 간격)
+                document.getElementById('qteTimeGauge').style.width = Math.max(0, qteTimeLeft) + '%';
+
+                if (qteTimeLeft <= 0) {
+                    clearInterval(qteInterval);
+                    gameOver("⚡ 반응 속도 미달!", "비상 셔터 잠금장치 반응 시간을 놓쳤습니다.");
+                }
+            }, 25);
         }
+
+        // 전체 키보드 입력 핸들러
+        window.addEventListener('keydown', (e) => {
+            if (isGameOver) return;
+
+            // 2단계 스페이스바
+            if (currentStage === 2 && e.code === 'Space' && !e.repeat) {
+                startSt2Move();
+            }
+
+            // 3단계 QTE
+            if (currentStage === 3) {
+                const pressedKey = e.key.toUpperCase();
+                if (pressedKey === currentQTEKey) {
+                    clearInterval(qteInterval);
+                    qteStep++;
+                    nextQTE();
+                } else if (['A','S','D','F','J','K','L','W','E','R'].includes(pressedKey)) {
+                    clearInterval(qteInterval);
+                    gameOver("⚡ 오타 발생!", "잘못된 키를 눌러 비상 셔터가 영구 차단되었습니다.");
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (currentStage === 2 && e.code === 'Space') {
+                stopSt2Move();
+            }
+        });
+
 
         // ==========================================
-        // 게임 결과 처리
+        // 게임 결과 및 처리
         // ==========================================
         function gameOver(title, desc) {
             isGameOver = true;
-            cancelAnimationFrame(stage1AnimFrame);
-            clearTimeout(st2GuardTimer);
+            clearInterval(st1Timer);
+            clearInterval(sanityInterval);
             clearInterval(st2MoveInterval);
-            clearInterval(st3TimerInterval);
+            clearInterval(qteInterval);
+            clearTimeout(st2GuardTimer);
 
             resTitle.innerText = title;
             resTitle.style.color = '#ef4444';
@@ -552,58 +669,14 @@
 
         function gameWin() {
             isGameOver = true;
-            resTitle.innerText = '🎉 감옥 탈출 성공!';
-            resTitle.style.color = '#10b981';
-            resDesc.innerText = '축하합니다! 무사히 담장을 넘어 자유의 몸이 되었습니다! 🚁💨';
+            clearInterval(qteInterval);
+            resTitle.innerText = '🏆 PSYCHO ESCAPE 성공!';
+            resTitle.style.color = '#22c55e';
+            resDesc.innerText = ' unbelievable! 극악의 난이도를 뚫고 정신병원 탈출에 성공했습니다!';
             resultModal.classList.remove('hidden');
         }
 
-        // ==========================================
-        // 이벤트 리스너
-        // ==========================================
-        mainBtn.addEventListener('mousedown', () => {
-            if (currentStage === 1) handleStage1Action();
-            else if (currentStage === 2) startSt2Move();
-            else if (currentStage === 3) handleStage3Action();
-        });
-
-        mainBtn.addEventListener('mouseup', () => {
-            if (currentStage === 2) stopSt2Move();
-        });
-
-        mainBtn.addEventListener('mouseleave', () => {
-            if (currentStage === 2) stopSt2Move();
-        });
-
-        // 터치 지원 (모바일)
-        mainBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (currentStage === 1) handleStage1Action();
-            else if (currentStage === 2) startSt2Move();
-            else if (currentStage === 3) handleStage3Action();
-        });
-
-        mainBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (currentStage === 2) stopSt2Move();
-        });
-
-        // 키보드 지원 (스페이스바)
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !e.repeat) {
-                if (currentStage === 1) handleStage1Action();
-                else if (currentStage === 2) startSt2Move();
-                else if (currentStage === 3) handleStage3Action();
-            }
-        });
-
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'Space') {
-                if (currentStage === 2) stopSt2Move();
-            }
-        });
-
-        // 게임 시작
+        // 게임 초기 실행
         initGame();
     </script>
 </body>

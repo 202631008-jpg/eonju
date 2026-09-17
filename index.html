@@ -3,681 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏥 정신병원 탈출 (PSYCHO ESCAPE) - HARDCORE</title>
+    <title>환승이별 극복 SOS</title>
     <style>
+        :root {
+            --ig-grad: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #262626;
+            --text-sub: #8e8e8e;
+            --accent: #e6683c;
+            --border-color: #dbdbdb;
+        }
+
         * {
             box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Consolas', 'Monaco', 'Courier New', sans-serif;
-            background-color: #050508;
-            color: #e2e8f0;
-            margin: 0;
+            background-color: #121212;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            max-height: 880px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* 상단 인스타 스토리 프로그레스 바 */
+        .story-bars {
+            display: flex;
+            gap: 4px;
+            padding: 16px 16px 8px 16px;
+        }
+
+        .bar {
+            flex: 1;
+            height: 3px;
+            background: #e0e0e0;
+            border-radius: 2px;
             overflow: hidden;
         }
 
-        /* 붉은 섬광 화면 효과 */
-        .glitch-bg {
-            position: fixed;
-            top:0; left:0; width:100%; height:100%;
-            background: rgba(220, 38, 38, 0.05);
-            pointer-events: none;
-            z-index: 1;
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--ig-grad);
+            transition: width 0.3s ease;
         }
 
-        .game-card {
-            background: #0f172a;
-            width: 94%;
-            max-width: 500px;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(225, 29, 72, 0.2);
-            border: 1px solid #991b1b;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        h1 {
-            margin: 0 0 5px 0;
-            color: #ef4444;
-            font-size: 1.6rem;
-            letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-        }
-
-        .diff-tag {
-            color: #dc2626;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-        }
-
-        .stage-indicator {
+        /* 헤더 */
+        .header {
             display: flex;
-            justify-content: center;
-            gap: 6px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 20px 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: var(--ig-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .step-tag {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-page {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .step-page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .question-sub {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+        }
+
+        /* 버튼 옵션 스타일 */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .opt-btn {
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            padding: 16px;
+            border-radius: 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .opt-btn:active {
+            transform: scale(0.97);
+            border-color: #cc2366;
+            background: #fff5f8;
+        }
+
+        .opt-btn.selected {
+            border-color: #cc2366;
+            background: #fff0f5;
+            color: #cc2366;
+        }
+
+        .sub-group {
             margin-bottom: 20px;
         }
 
-        .badge {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: #1e293b;
-            color: #64748b;
-            border: 1px solid #334155;
+        .sub-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
         }
 
-        .badge.active {
-            background: #991b1b;
-            color: #ffffff;
-            border-color: #ef4444;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
-        }
-
-        /* 공통 스테이지 박스 */
-        .stage-box {
-            background: #020617;
-            border-radius: 8px;
-            padding: 20px;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #1e293b;
-            position: relative;
-        }
-
-        /* 1단계 스타일 */
-        .code-display {
-            font-size: 2.5rem;
-            font-weight: bold;
-            letter-spacing: 6px;
-            color: #f87171;
-            margin: 20px 0;
-            min-height: 50px;
-            text-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
-        }
-
-        .input-box {
-            width: 80%;
-            padding: 10px;
-            font-size: 1.3rem;
-            text-align: center;
-            background: #0f172a;
-            border: 1px solid #ef4444;
-            color: #fff;
-            border-radius: 6px;
-            outline: none;
-            letter-spacing: 4px;
-        }
-
-        /* 2단계 스타일 */
-        .sanity-bar-container {
-            width: 100%;
-            height: 10px;
-            background: #1e293b;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .sanity-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: #22c55e;
-            transition: width 0.1s linear, background-color 0.2s;
-        }
-
-        .doctor-status {
-            font-size: 3.8rem;
-            margin: 10px 0;
-        }
-
-        .track-bg {
-            width: 100%;
-            height: 12px;
-            background: #1e293b;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .track-fill {
-            height: 100%;
-            width: 0%;
-            background: #ef4444;
-        }
-
-        /* 3단계 스타일 */
-        .qte-key {
-            font-size: 4.5rem;
-            font-weight: bold;
-            color: #facc15;
-            text-shadow: 0 0 15px rgba(250, 204, 21, 0.7);
-            margin: 10px 0;
-        }
-
-        .time-gauge {
-            width: 100%;
-            height: 8px;
-            background: #334155;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .time-gauge-fill {
-            height: 100%;
-            width: 100%;
-            background: #eab308;
-        }
-
-        /* 버튼 */
-        .action-btn {
-            width: 100%;
-            margin-top: 18px;
-            padding: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #ffffff;
-            background-color: #7f1d1d;
-            border: 1px solid #ef4444;
-            border-radius: 8px;
+        /* 하단 고정 버튼 */
+        .nav-btn {
+            margin-top: auto;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: var(--ig-grad);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(127, 29, 29, 0.5);
-            transition: all 0.1s;
+            box-shadow: 0 4px 15px rgba(204, 35, 102, 0.3);
+            transition: transform 0.1s ease;
         }
 
-        .action-btn:active {
-            background-color: #991b1b;
+        .nav-btn:active {
             transform: scale(0.98);
         }
 
-        /* 결과 창 */
-        .overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 5, 8, 0.96);
-            border-radius: 12px;
+        .nav-btn:disabled {
+            background: #e0e0e0;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 결과 카드 스타일 */
+        .result-card {
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .result-header {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            padding: 25px;
-            z-index: 10;
+            margin-bottom: 6px;
         }
 
-        .overlay h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: #dc2626;
+        .result-title {
+            font-weight: 800;
+            font-size: 1.05rem;
         }
 
-        .overlay p {
-            color: #94a3b8;
-            margin-bottom: 25px;
+        .stars {
+            color: #ffb800;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .result-reason {
+            font-size: 0.85rem;
+            color: var(--text-sub);
             line-height: 1.4;
         }
 
-        .restart-btn {
-            padding: 12px 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            background: #ef4444;
+        /* 인스타 스토리 미션 카드 */
+        .story-card {
+            background: var(--ig-grad);
+            border-radius: 20px;
+            padding: 20px;
             color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+            text-align: center;
+            margin-top: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        .hidden { display: none !important; }
-        .text-sub { color: #64748b; font-size: 0.85rem; }
-        .timer-text { color: #f87171; font-weight: bold; }
+        .story-card .tag {
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.25);
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .story-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .story-card p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
 
-    <div class="glitch-bg"></div>
-
-    <div class="game-card">
-        <h1>🏥 PSYCHO ESCAPE</h1>
-        <div class="diff-tag">⚠️ 난이도: EXTREME HARDCORE</div>
-
-        <!-- 단계 헤더 -->
-        <div class="stage-indicator">
-            <span id="badge1" class="badge active">1. 진정제실 암호</span>
-            <span id="badge2" class="badge">2. 어두운 복도</span>
-            <span id="badge3" class="badge">3. 비상 셔터 QTE</span>
+    <div class="app-container">
+        <!-- 스토리 바 -->
+        <div class="story-bars">
+            <div class="bar"><div id="fill1" class="bar-fill"></div></div>
+            <div class="bar"><div id="fill2" class="bar-fill"></div></div>
+            <div class="bar"><div id="fill3" class="bar-fill"></div></div>
+            <div class="bar"><div id="fill4" class="bar-fill"></div></div>
         </div>
 
-        <!-- 1단계: 메모리 암호 -->
-        <div id="stage1" class="stage-box">
-            <div>
-                <h3>👁️ 0.7초간 스치는 암호를 기억하세요</h3>
-                <p class="text-sub">제한시간 3.5초 | <span class="timer-text" id="st1Timer">3.5s</span></p>
-            </div>
-            <div id="codeDisplay" class="code-display">------</div>
-            <input type="text" id="st1Input" class="input-box" placeholder="6자리 입력" maxlength="6" autocomplete="off" disabled>
-            <div id="st1Count" style="margin-top: 10px; color: #a1a1aa;">성공 횟수: 0 / 2</div>
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>❤️‍🩹 환승이별 극복 SOS</h1>
+            <span id="stepTag" class="step-tag">STEP 1/3</span>
         </div>
 
-        <!-- 2단계: 스텔스 & 정신력 -->
-        <div id="stage2" class="stage-box hidden">
-            <div style="width: 100%;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
-                    <span>정신력 (SANITY)</span>
-                    <span id="sanityText">100%</span>
-                </div>
-                <div class="sanity-bar-container">
-                    <div id="sanityFill" class="sanity-bar-fill"></div>
-                </div>
-                <p id="st2Desc" class="text-sub" style="margin: 0;">의사가 딴짓할 때만 전진하세요!</p>
-            </div>
-
-            <div id="docEmoji" class="doctor-status">💉</div>
-
-            <div style="width: 100%;">
-                <div class="track-bg"><div id="st2Progress" class="track-fill"></div></div>
-                <div style="display: flex; justify-content: space-between; font-size: 1.5rem; margin-top: 5px;">
-                    <span id="st2Runner">🏃‍♂️</span>
-                    <span>🚪</span>
+        <div class="content">
+            <!-- STEP 1: 친구들 시간 -->
+            <div id="step1" class="step-page active">
+                <div class="question-title">오늘 친구들의 연락 가능 상태와<br>시간 여유는 어때 보여?</div>
+                <div class="question-sub">친구들의 현실적 상황에 맞춘 최적 루트를 찾아줄게!</div>
+                
+                <div class="options-grid">
+                    <button class="opt-btn" onclick="selectStep1('full', this)">
+                        <span>🔥 오늘 완전 프리! 다 모일 수 있음</span> <span>›</span>
+                    </button>
+                    <button class="opt-btn" onclick="selectStep1('part', this)">
+                        <span>☕ 카페/코노 2~3시간 정도는 가능</span> <span>›</span>
+                    </button>
+                    <button class="opt-btn" onclick="selectStep1('solo', this)">
+                        <span>📚 다들 학원/시험 때문에 오늘 안 됨</span> <span>›</span>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- 3단계: QTE 극강 연타 -->
-        <div id="stage3" class="stage-box hidden">
-            <div>
-                <h3>⚡ 화면의 알파벳을 즉시 누르세요!</h3>
-                <p class="text-sub">제한시간: <span class="timer-text">0.50초</span> (10회 연속)</p>
-            </div>
-            
-            <div id="qteKey" class="qte-key">A</div>
+            <!-- STEP 2: 친구들과 액티비티 (친구 가능 시만) -->
+            <div id="step2" class="step-page">
+                <div class="question-title">오늘 친구들과 모이면<br>어떤 스타일로 놀고 싶어?</div>
+                <div class="question-sub">원하는 액티비티 방향을 골라줘.</div>
 
-            <div style="width: 100%;">
-                <div class="time-gauge">
-                    <div id="qteTimeGauge" class="time-gauge-fill"></div>
+                <div class="options-grid">
+                    <button class="opt-btn" onclick="selectStep2('talk', this)">
+                        <span>💬 소소하게 카페/산책하며 수다 떨기</span> <span>›</span>
+                    </button>
+                    <button class="opt-btn" onclick="selectStep2('active', this)">
+                        <span>🎤 코노/오락실에서 미친 듯이 지르기</span> <span>›</span>
+                    </button>
+                    <button class="opt-btn" onclick="selectStep2('food', this)">
+                        <span>🍕 맛있는 거 먹으면서 스트레스 해소</span> <span>›</span>
+                    </button>
+                    <button class="opt-btn" onclick="selectStep2('silent', this)">
+                        <span>🤫 아무 말 없이 그냥 옆에 있어주기</span> <span>›</span>
+                    </button>
                 </div>
-                <div id="st3Count" style="margin-top: 10px; color: #a1a1aa;">남은 횟수: 10 / 10</div>
             </div>
-        </div>
 
-        <!-- 메인 조작 버튼 -->
-        <button id="mainBtn" class="action-btn">게임 시작 / 액션</button>
+            <!-- STEP 3: 내 상태 & 조건 -->
+            <div id="step3" class="step-page">
+                <div class="question-title">내 현재 감정 상태와<br>오늘의 제약 조건을 알려줘</div>
+                
+                <div class="sub-group">
+                    <div class="sub-title">1. 현재 내 멘탈 상태는?</div>
+                    <div class="options-grid">
+                        <button class="opt-btn" onclick="setCondition('emotion', 'sad', this)">😭 멘탈 바사삭 / 눈물 남</button>
+                        <button class="opt-btn" onclick="setCondition('emotion', 'angry', this)">😡 분노 폭발 / 억울함</button>
+                        <button class="opt-btn" onclick="setCondition('emotion', 'numb', this)">😶 씁쓸하고 멍함</button>
+                    </div>
+                </div>
 
-        <!-- 결과 모달 -->
-        <div id="resultModal" class="overlay hidden">
-            <h2 id="resTitle">💀 영원한 감금</h2>
-            <p id="resDesc">정신병원을 탈출하지 못했습니다.</p>
-            <button class="restart-btn" onclick="initGame()">다시 도전 (RETRY)</button>
+                <div class="sub-group">
+                    <div class="sub-title">2. 오늘 지출 가능한 예산은?</div>
+                    <div class="options-grid">
+                        <button class="opt-btn" onclick="setCondition('budget', 'low', this)">💸 0원 ~ 1만 원 (거지존)</button>
+                        <button class="opt-btn" onclick="setCondition('budget', 'mid', this)">💳 1만 ~ 3만 원 (소소 힐링)</button>
+                        <button class="opt-btn" onclick="setCondition('budget', 'high', this)">🔥 3만 원 이상 (탕진잼)</button>
+                    </div>
+                </div>
+
+                <div class="sub-group">
+                    <div class="sub-title">3. 혹시 새로 눈길이 가는 사람이 있어?</div>
+                    <div class="options-grid">
+                        <button class="opt-btn" onclick="setCondition('crush', 'yes', this)">👀 응, 눈길 가는 사람 생김</button>
+                        <button class="opt-btn" onclick="setCondition('crush', 'no', this)">🙅‍♂️ 전혀 없음 / 생각도 안 남</button>
+                    </div>
+                </div>
+
+                <button id="submitBtn" class="nav-btn" onclick="generateResult()" disabled>맞춤 극복 솔루션 확인하기</button>
+            </div>
+
+            <!-- STEP 4: 결과 페이지 -->
+            <div id="step4" class="step-page">
+                <div class="question-title">오늘 너에게 가장 적합한<br>극복 솔루션 Top 3 ✨</div>
+                <div class="question-sub">너의 상황과 조건에 꼭 맞게 추천해줄게!</div>
+
+                <div id="resultsList"></div>
+
+                <!-- 인스타 스토리 캡처 카드 -->
+                <div class="story-card" id="storyCard">
+                    <span class="tag">📸 Instagram Story Mission</span>
+                    <h2 id="storyMissionTitle">오늘의 멘탈 케어</h2>
+                    <p id="storyMissionDesc">친구들아 나 오늘 이 미션 수행해야 함. 도와줘!</p>
+                </div>
+
+                <button class="nav-btn" style="margin-top: 15px;" onclick="location.reload()">다시 테스트하기</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 게임 상태
-        let currentStage = 1;
-        let isGameOver = false;
+        const state = {
+            friendTime: null, // full, part, solo
+            friendActivity: null,
+            emotion: null,
+            budget: null,
+            crush: null
+        };
 
-        // UI
-        const badge1 = document.getElementById('badge1');
-        const badge2 = document.getElementById('badge2');
-        const badge3 = document.getElementById('badge3');
-        const stage1 = document.getElementById('stage1');
-        const stage2 = document.getElementById('stage2');
-        const stage3 = document.getElementById('stage3');
-        const mainBtn = document.getElementById('mainBtn');
-        const resultModal = document.getElementById('resultModal');
-        const resTitle = document.getElementById('resTitle');
-        const resDesc = document.getElementById('resDesc');
+        function updateBars(step) {
+            document.getElementById('fill1').style.width = step >= 1 ? '100%' : '0%';
+            document.getElementById('fill2').style.width = step >= 2 ? '100%' : '0%';
+            document.getElementById('fill3').style.width = step >= 3 ? '100%' : '0%';
+            document.getElementById('fill4').style.width = step >= 4 ? '100%' : '0%';
 
-        // --- 1단계 변수 ---
-        let st1TargetCode = "";
-        let st1SuccessCount = 0;
-        let st1Timer = null;
-        let st1TimeLeft = 3.5;
-
-        // --- 2단계 변수 ---
-        let sanity = 100;
-        let sanityInterval = null;
-        let st2Pos = 0;
-        let st2State = 'SAFE'; // SAFE, WARNING, DANGER
-        let st2GuardTimer = null;
-        let isSt2Moving = false;
-        let st2MoveInterval = null;
-
-        // --- 3단계 변수 ---
-        const qteKeys = ['A', 'S', 'D', 'F', 'J', 'K', 'L', 'W', 'E', 'R'];
-        let currentQTEKey = '';
-        let qteStep = 0;
-        let qteTimeLeft = 100; // %
-        let qteInterval = null;
-
-        // 게임 시작 및 초기화
-        function initGame() {
-            currentStage = 1;
-            isGameOver = false;
-            resultModal.classList.add('hidden');
-
-            badge1.className = 'badge active';
-            badge2.className = 'badge';
-            badge3.className = 'badge';
-
-            stage1.classList.remove('hidden');
-            stage2.classList.add('hidden');
-            stage3.classList.add('hidden');
-
-            st1SuccessCount = 0;
-            document.getElementById('st1Count').innerText = `성공 횟수: 0 / 2`;
-            mainBtn.innerText = "암호 출력 시작!";
-            mainBtn.onclick = startStage1Round;
+            const tag = document.getElementById('stepTag');
+            if (step < 4) tag.innerText = `STEP ${step}/3`;
+            else tag.innerText = 'COMPLETE';
         }
 
-        // ==========================================
-        // 🧩 1단계: 메모리 암호 해독 (극악)
-        // ==========================================
-        function startStage1Round() {
-            if (isGameOver) return;
+        function showStep(stepNum) {
+            document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`step${stepNum}`).classList.add('active');
+            updateBars(stepNum);
+        }
 
-            // 6자리 난수 생성
-            st1TargetCode = Math.floor(100000 + Math.random() * 900000).toString();
-            const display = document.getElementById('codeDisplay');
-            const input = document.getElementById('st1Input');
-
-            input.value = "";
-            input.disabled = true;
-            mainBtn.disabled = true;
-            mainBtn.innerText = "암호 기억하는 중...";
-
-            // 0.7초 동안만 보여줌
-            display.innerText = st1TargetCode;
-            
+        function selectStep1(type, btn) {
+            state.friendTime = type;
+            highlightSelected(btn);
             setTimeout(() => {
-                display.innerText = "******";
-                input.disabled = false;
-                input.focus();
-                mainBtn.disabled = false;
-                mainBtn.innerText = "암호 제출 (ENTER)";
-                mainBtn.onclick = checkStage1Answer;
-
-                // 3.5초 타이머 시작
-                st1TimeLeft = 3.5;
-                clearInterval(st1Timer);
-                st1Timer = setInterval(() => {
-                    st1TimeLeft -= 0.1;
-                    document.getElementById('st1Timer').innerText = `${Math.max(0, st1TimeLeft).toFixed(1)}s`;
-                    if (st1TimeLeft <= 0) {
-                        clearInterval(st1Timer);
-                        gameOver("🚨 시간 초과!", "3.5초 안에 암호를 입력하지 못해 경보가 울렸습니다.");
-                    }
-                }, 100);
-            }, 700);
-        }
-
-        function checkStage1Answer() {
-            if (isGameOver) return;
-            clearInterval(st1Timer);
-
-            const inputVal = document.getElementById('st1Input').value.trim();
-            if (inputVal === st1TargetCode) {
-                st1SuccessCount++;
-                document.getElementById('st1Count').innerText = `성공 횟수: ${st1SuccessCount} / 2`;
-
-                if (st1SuccessCount >= 2) {
-                    startStage2();
+                if (type === 'solo') {
+                    showStep(3); // 친구 시간 없으면 Step 2 건너뜀
                 } else {
-                    alert("1차 암호 해독 성공! 다음 암호 준비...");
-                    startStage1Round();
+                    showStep(2);
                 }
+            }, 200);
+        }
+
+        function selectStep2(type, btn) {
+            state.friendActivity = type;
+            highlightSelected(btn);
+            setTimeout(() => {
+                showStep(3);
+            }, 200);
+        }
+
+        function setCondition(key, val, btn) {
+            state[key] = val;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            // 3가지 조건 모두 선택 시 버튼 활성화
+            if (state.emotion && state.budget && state.crush) {
+                document.getElementById('submitBtn').disabled = false;
+            }
+        }
+
+        function highlightSelected(btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function generateResult() {
+            showStep(4);
+            const container = document.getElementById('resultsList');
+            container.innerHTML = '';
+
+            let list = [];
+
+            // 1. 혼자 전용 루트 (친구 시간 없음)
+            if (state.friendTime === 'solo') {
+                list.push({
+                    title: "🔒 디지털 쇄국정책 & 뇌 비우기 산책",
+                    score: "★ 4.9 / 5.0",
+                    desc: "차단 후 폰을 두고 30분간 산책해보자. 타인의 SNS에 휘둘리지 않고 스스로 멘탈을 가다듬기 가장 좋아."
+                });
+                list.push({
+                    title: "🍜 최애 유튜버 + 매운 음식 힐링",
+                    score: "★ 4.7 / 5.0",
+                    desc: "혼자만의 공간에서 매운 떡볶이나 불닭을 먹으며 엔돌핀을 돌게 만들자. 혼자여도 외롭지 않은 확실한 처방!"
+                });
             } else {
-                gameOver("🚨 암호 오류!", "잘못된 암호를 입력하여 강한 전기 충격을 받았습니다.");
-            }
-        }
-
-        // 엔터키 지원
-        document.getElementById('st1Input').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter' && currentStage === 1) checkStage1Answer();
-        });
-
-
-        // ==========================================
-        // 👁️ 2단계: 어두운 복도 (스텔스 & 정신력 깎임)
-        // ==========================================
-        function startStage2() {
-            currentStage = 2;
-            badge1.className = 'badge';
-            badge2.className = 'badge active';
-            stage1.classList.add('hidden');
-            stage2.classList.remove('hidden');
-
-            sanity = 100;
-            st2Pos = 0;
-            st2State = 'SAFE';
-            isSt2Moving = false;
-
-            document.getElementById('st2Progress').style.width = '0%';
-            mainBtn.innerText = "꾹 눌러서 이동 (스페이스바 가능)";
-            mainBtn.onclick = null; // 마우스 이벤트로 변경
-
-            updateDocUI();
-            scheduleDocState();
-
-            // 정신력 지속 감소 타이머 (초당 6% 감소)
-            clearInterval(sanityInterval);
-            sanityInterval = setInterval(() => {
-                if (isGameOver || currentStage !== 2) return;
-                sanity -= 0.6;
-                const sanityFill = document.getElementById('sanityFill');
-                const sanityText = document.getElementById('sanityText');
-
-                sanityFill.style.width = Math.max(0, sanity) + '%';
-                sanityText.innerText = Math.max(0, Math.floor(sanity)) + '%';
-
-                if (sanity <= 30) sanityFill.style.backgroundColor = '#ef4444';
-                else if (sanity <= 60) sanityFill.style.backgroundColor = '#f59e0b';
-                else sanityFill.style.backgroundColor = '#22c55e';
-
-                if (sanity <= 0) {
-                    gameOver("🧠 정신력 붕괴!", "환각과 공포를 견디지 못하고 이성을 잃었습니다.");
-                }
-            }, 100);
-        }
-
-        function scheduleDocState() {
-            if (currentStage !== 2 || isGameOver) return;
-
-            let time = 0;
-            if (st2State === 'SAFE') {
-                time = Math.random() * 1200 + 1000; // 1 ~ 2.2초
-                st2GuardTimer = setTimeout(() => { setDocState('WARNING'); }, time);
-            } else if (st2State === 'WARNING') {
-                time = 350; // 경고 시간이 단 0.35초!
-                st2GuardTimer = setTimeout(() => { setDocState('DANGER'); }, time);
-            } else if (st2State === 'DANGER') {
-                time = Math.random() * 1000 + 1000; // 1 ~ 2초
-                st2GuardTimer = setTimeout(() => { setDocState('SAFE'); }, time);
-            }
-        }
-
-        function setDocState(state) {
-            if (currentStage !== 2 || isGameOver) return;
-            st2State = state;
-            updateDocUI();
-
-            if (st2State === 'DANGER' && isSt2Moving) {
-                gameOver("💉 수색 중 포획!", "의사가 뒤돌아볼 때 움직여 진정제 주사를 맞았습니다.");
-                return;
-            }
-            scheduleDocState();
-        }
-
-        function updateDocUI() {
-            const emoji = document.getElementById('docEmoji');
-            const desc = document.getElementById('st2Desc');
-
-            if (st2State === 'SAFE') {
-                emoji.innerText = '💉';
-                desc.innerText = '의사가 차트를 적는 중... (이동 가능)';
-                desc.style.color = '#22c55e';
-            } else if (st2State === 'WARNING') {
-                emoji.innerText = '⚠️';
-                desc.innerText = '의사: "누가 움직였나...?" (0.35초 후 돌아봄!)';
-                desc.style.color = '#f59e0b';
-            } else if (st2State === 'DANGER') {
-                emoji.innerText = '👁️';
-                desc.innerText = '의사가 뒤돌아봤습니다! (움직이지 마세요!)';
-                desc.style.color = '#ef4444';
-            }
-        }
-
-        function startSt2Move() {
-            if (currentStage !== 2 || isGameOver || isSt2Moving) return;
-            isSt2Moving = true;
-
-            st2MoveInterval = setInterval(() => {
-                if (!isSt2Moving || isGameOver) return;
-                if (st2State === 'DANGER') {
-                    gameOver("💉 수색 중 포획!", "의사가 뒤돌아볼 때 움직여 진정제 주사를 맞았습니다.");
-                    return;
+                // 2. 친구와 함께하는 루트
+                if (state.emotion === 'angry') {
+                    list.push({
+                        title: "🎤 코노 고음 지르기 & 오락실 사격",
+                        score: "★ 5.0 / 5.0",
+                        desc: "친구들과 코노에 가서 답답한 가슴이 뻥 뚫릴 때까지 소리 지르고 분노를 에너지로 승화시키자."
+                    });
+                } else {
+                    list.push({
+                        title: "☕ 친구들과 밤산책 & 소소한 카페 수다",
+                        score: "★ 4.8 / 5.0",
+                        desc: "친구들에게 속마음을 털어놓으며 '내 편'이 이렇게 많다는 걸 실감해봐. 마음이 한결 가벼워질 거야."
+                    });
                 }
 
-                st2Pos += 1.1;
-                if (st2Pos > 88) st2Pos = 88;
-
-                document.getElementById('st2Progress').style.width = (st2Pos / 88 * 100) + '%';
-
-                if (st2Pos >= 88) {
-                    stopSt2Move();
-                    clearInterval(sanityInterval);
-                    clearTimeout(st2GuardTimer);
-                    startStage3();
-                }
-            }, 30);
-        }
-
-        function stopSt2Move() {
-            isSt2Moving = false;
-            clearInterval(st2MoveInterval);
-        }
-
-        // 2단계 조작 이벤트
-        mainBtn.addEventListener('mousedown', () => { if (currentStage === 2) startSt2Move(); });
-        mainBtn.addEventListener('mouseup', () => { if (currentStage === 2) stopSt2Move(); });
-        mainBtn.addEventListener('mouseleave', () => { if (currentStage === 2) stopSt2Move(); });
-
-
-        // ==========================================
-        // ⚡ 3단계: 비상 셔터 QTE (0.5초 한계 속도)
-        // ==========================================
-        function startStage3() {
-            currentStage = 3;
-            badge2.className = 'badge';
-            badge3.className = 'badge active';
-            stage2.classList.add('hidden');
-            stage3.classList.remove('hidden');
-
-            qteStep = 0;
-            mainBtn.innerText = "키보드로 화면의 알파벳을 누르세요!";
-            mainBtn.disabled = true;
-
-            nextQTE();
-        }
-
-        function nextQTE() {
-            if (isGameOver) return;
-
-            if (qteStep >= 10) {
-                gameWin();
-                return;
-            }
-
-            document.getElementById('st3Count').innerText = `남은 횟수: ${10 - qteStep} / 10`;
-            
-            // Random Key 선택
-            currentQTEKey = qteKeys[Math.floor(Math.random() * qteKeys.length)];
-            document.getElementById('qteKey').innerText = currentQTEKey;
-
-            // 0.50초 타이머
-            qteTimeLeft = 100;
-            clearInterval(qteInterval);
-
-            qteInterval = setInterval(() => {
-                qteTimeLeft -= 5; // 0.5초 동안 100 -> 0 (20회 감쇠, 25ms 간격)
-                document.getElementById('qteTimeGauge').style.width = Math.max(0, qteTimeLeft) + '%';
-
-                if (qteTimeLeft <= 0) {
-                    clearInterval(qteInterval);
-                    gameOver("⚡ 반응 속도 미달!", "비상 셔터 잠금장치 반응 시간을 놓쳤습니다.");
-                }
-            }, 25);
-        }
-
-        // 전체 키보드 입력 핸들러
-        window.addEventListener('keydown', (e) => {
-            if (isGameOver) return;
-
-            // 2단계 스페이스바
-            if (currentStage === 2 && e.code === 'Space' && !e.repeat) {
-                startSt2Move();
-            }
-
-            // 3단계 QTE
-            if (currentStage === 3) {
-                const pressedKey = e.key.toUpperCase();
-                if (pressedKey === currentQTEKey) {
-                    clearInterval(qteInterval);
-                    qteStep++;
-                    nextQTE();
-                } else if (['A','S','D','F','J','K','L','W','E','R'].includes(pressedKey)) {
-                    clearInterval(qteInterval);
-                    gameOver("⚡ 오타 발생!", "잘못된 키를 눌러 비상 셔터가 영구 차단되었습니다.");
+                if (state.budget === 'high') {
+                    list.push({
+                        title: "🍕 친구들과 맛집 탕진 파티",
+                        score: "★ 4.9 / 5.0",
+                        desc: "맛있는 걸 먹을 때 뇌는 행복감을 느껴! 오늘 하루만큼은 예산 걱정 없이 나와 친구들을 위해 투자하자."
+                    });
                 }
             }
-        });
 
-        window.addEventListener('keyup', (e) => {
-            if (currentStage === 2 && e.code === 'Space') {
-                stopSt2Move();
+            // 3. 새로 눈길 가는 사람이 있을 때 (글로우업 특화)
+            if (state.crush === 'yes') {
+                list.push({
+                    title: "✨ 글로우업! 인스타 프사 교체 프로젝트",
+                    score: "★ 5.0 / 5.0",
+                    desc: "새로운 인연에게 보여줄 레전드 프사를 친구들과 찍어보자. 과거에 얽매이지 않고 앞으로 나아가는 최고의 자존감 회복법!"
+                });
+            } else {
+                list.push({
+                    title: "🎧 신나는 자존감 뿜뿜 플레이리스트 듣기",
+                    score: "★ 4.6 / 5.0",
+                    desc: "우울한 이별 노래는 금물! 신나는 힙합이나 댄스 곡으로 뇌의 회로를 긍정적으로 바꿔주는 작업이 필요해."
+                });
             }
-        });
 
+            // Top 3 출력
+            list.slice(0, 3).forEach(item => {
+                container.innerHTML += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <span class="result-title">${item.title}</span>
+                            <span class="stars">${item.score}</span>
+                        </div>
+                        <div class="result-reason">${item.desc}</div>
+                    </div>
+                `;
+            });
 
-        // ==========================================
-        // 게임 결과 및 처리
-        // ==========================================
-        function gameOver(title, desc) {
-            isGameOver = true;
-            clearInterval(st1Timer);
-            clearInterval(sanityInterval);
-            clearInterval(st2MoveInterval);
-            clearInterval(qteInterval);
-            clearTimeout(st2GuardTimer);
-
-            resTitle.innerText = title;
-            resTitle.style.color = '#ef4444';
-            resDesc.innerText = desc;
-            resultModal.classList.remove('hidden');
+            // 스토리 미션 카드 갱신
+            document.getElementById('storyMissionTitle').innerText = list[0].title;
+            document.getElementById('storyMissionDesc').innerText = list[0].desc;
         }
 
-        function gameWin() {
-            isGameOver = true;
-            clearInterval(qteInterval);
-            resTitle.innerText = '🏆 PSYCHO ESCAPE 성공!';
-            resTitle.style.color = '#22c55e';
-            resDesc.innerText = ' unbelievable! 극악의 난이도를 뚫고 정신병원 탈출에 성공했습니다!';
-            resultModal.classList.remove('hidden');
-        }
-
-        // 게임 초기 실행
-        initGame();
+        // 초기 시작
+        updateBars(1);
     </script>
 </body>
 </html>
